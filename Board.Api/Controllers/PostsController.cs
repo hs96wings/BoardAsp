@@ -78,19 +78,20 @@ namespace Board.Api.Controllers
             return NoContent();
         }
 
-        //// [DELETE] /api/posts/{id} - 특정 게시글 삭제
-        //[HttpDelete("{id}")]
-        //public ActionResult DeletePost(int id)
-        //{
-        //    var post = _posts.FirstOrDefault(p => p.Id==id);
+        // [DELETE] /api/posts/{id} - 특정 게시글 삭제
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeletePost(int id)
+        {
+            var deletePost = await _context.Posts.FindAsync(id);
 
-        //    if (post == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    _posts.Remove(post);
+            if (deletePost == null)
+            {
+                return NotFound();
+            }
+            _context.Posts.Remove(deletePost);
+            await _context.SaveChangesAsync();
 
-        //    return NoContent();
-        //}
+            return NoContent();
+        }
     }
 }
