@@ -15,7 +15,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy =>
         {
-            policy.WithOrigins("https://localhost:7001") // Blazor 주소 수정 필요
+            policy.WithOrigins("https://localhost:7215") // Blazor 주소 수정 필요
             .AllowAnyHeader()
             .AllowAnyMethod();
         });

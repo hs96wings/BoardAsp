@@ -1,0 +1,43 @@
+﻿@page "/board"
+@inject IHttpClientFactory HttpClientFactory // Program.cs에 등록한 HttpClient를 사용하기 위해 주입
+
+<h3>게시판</h3>
+
+@if (posts == null)
+{
+    <p><em>로딩 중...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var post in posts)
+            {
+                <tr>
+                    <td>@post.Id</td>
+                    <td>@post.Title</td>
+                    <td>@post.Author</td>
+                    <td>@post.CreatedAt.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Post>? posts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = HttpClientFactory.CreateClient("WebApi");
+        posts = await client.GetFromJsonAsync<List<Post>>("api/posts");
+    }
+}

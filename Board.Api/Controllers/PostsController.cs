@@ -1,8 +1,10 @@
-﻿using Board.Api.Models;
+﻿using Board.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Board.Api.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
         // --- 가짜 DB 역할을 할 static 리스트 ---

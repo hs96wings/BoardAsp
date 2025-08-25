@@ -1,4 +1,5 @@
-﻿namespace Board.Api.Models
+﻿namespace Board.Shared.Models
+
 {
     public class Post
     {
