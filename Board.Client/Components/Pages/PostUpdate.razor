@@ -1,0 +1,68 @@
+﻿@page "/posts/update/{id:int}"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>게시글 수정</h3>
+
+@if (post == null)
+{
+    <p><em>로딩 중...</em></p>
+}
+else
+{
+    <EditForm Model="@post" OnValidSubmit="@HandleValidSubmit" FormName="CreatePostForm">
+        <DataAnnotationsValidator />
+
+        <div class="mb-3">
+            <label for="title" class="form-label">제목</label>
+            <InputText id="title" class="form-control" @bind-Value="post.Title" />
+            <ValidationMessage For="@(() => post.Title)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="description" class="form-label">내용</label>
+            <InputTextArea id="description" class="form-control" @bind-Value="post.Description" rows="5" />
+            <ValidationMessage For="@(() => post.Description)" />
+        </div>
+
+        <div class="mb-3">
+            <label for="author" class="form-label">작성자</label>
+            <InputText id="author" class="form-control" @bind-Value="post.Author" />
+            <ValidationMessage For="@(() => post.Author)" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">수정하기</button>
+        <ValidationSummary class="mt-2 text-danger" />
+    </EditForm>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Post? post;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = HttpClientFactory.CreateClient("WebApi");
+        post = await client.GetFromJsonAsync<Post>($"api/posts/{id}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        var client = HttpClientFactory.CreateClient("WebApi");
+
+        var response = await client.PutAsJsonAsync($"api/posts/{id}", post);
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/board"); // 작성 후 목록으로 이동
+        }
+        else
+        {
+            // TODO: 에러 처리
+            Console.WriteLine("Error updating post");
+        }
+    }
+}

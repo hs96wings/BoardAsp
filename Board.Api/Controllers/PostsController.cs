@@ -45,8 +45,8 @@ namespace Board.Api.Controllers
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
-        // [PATCH] /api/posts/{id} - 특정 게시글 수정
-        [HttpPatch("{id}")]
+        // [PUT] /api/posts/{id} - 특정 게시글 수정
+        [HttpPut("{id}")]
         public ActionResult<Post> UpdatePost(int id, [FromBody] Post updatePost)
         {
             var post = _posts.FirstOrDefault(p => p.Id == id);
