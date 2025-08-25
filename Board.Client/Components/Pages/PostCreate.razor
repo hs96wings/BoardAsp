@@ -39,7 +39,6 @@
         var client = HttpClientFactory.CreateClient("WebApi");
 
         var response = await client.PostAsJsonAsync("api/posts", post);
-        Console.WriteLine(post.Title.ToString());
 
         if (response.IsSuccessStatusCode)
         {

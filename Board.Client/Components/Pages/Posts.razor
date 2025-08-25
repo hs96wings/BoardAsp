@@ -1,6 +1,7 @@
 ﻿@page "/board"
 @inject IHttpClientFactory HttpClientFactory // Program.cs에 등록한 HttpClient를 사용하기 위해 주입
 @inject NavigationManager Navigation
+@rendermode InteractiveServer
 
 <h3>게시판</h3>
 
@@ -21,6 +22,7 @@ else
                 <th>제목</th>
                 <th>작성자</th>
                 <th>작성일</th>
+                <th>버튼</th>
             </tr>
         </thead>
         <tbody>
@@ -28,17 +30,75 @@ else
             {
                 <tr>
                     <td>@post.Id</td>
-                    <td><a href="/posts/@post.Id">@post.Title</a></td>
+                    <td>@post.Title</td>
                     <td>@post.Author</td>
                     <td>@post.CreatedAt.ToShortDateString()</td>
+                    <td>
+                        <a class="btn btn-secondary btn-sm" href="@($"posts/{post.Id}")">보기</a>
+                        <a class="btn btn-primary btn-sm" href="@($"posts/update/{post.Id}")">수정</a>
+                        <button class="btn btn-danger btn-sm" @onclick="() => ShowDeleteModal(post)">삭제</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
 }
 
+@if (postToDelete != null)
+{
+    <div class="modal fade show" style="display:block;" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">삭제 확인</h5>
+                    <button type="button" class="close" @onclick="CloseDeleteModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>정말로 '@postToDelete.Title' 게시물을 삭제하시겠습니까?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">닫기</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
 @code {
     private List<Post>? posts;
+
+    // --- 모달 제어를 위한 코드 추가 ---
+    private Post? postToDelete;
+
+    private void ShowDeleteModal(Post post)
+    {
+        postToDelete = post;
+    }
+
+    private void CloseDeleteModal()
+    {
+        postToDelete = null;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (postToDelete != null)
+        {
+            var client = HttpClientFactory.CreateClient("WebApi");
+            var response = await client.DeleteAsync($"api/posts/{postToDelete.Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                posts?.Remove(postToDelete);
+            }
+
+            CloseDeleteModal();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
