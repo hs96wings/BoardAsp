@@ -1,5 +1,7 @@
-﻿using Board.Shared.Models;
+﻿using Board.Api.Data;
+using Board.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Board.Api.Controllers
 {
@@ -7,86 +9,86 @@ namespace Board.Api.Controllers
     [Route("api/[controller]")]
     public class PostsController : ControllerBase
     {
-        // --- 가짜 DB 역할을 할 static 리스트 ---
-        private static List<Post> _posts = new List<Post>
+        private readonly ApplicationDbContext _context;
+
+        public PostsController(ApplicationDbContext context)
         {
-            new Post { Id = 1, Title = "첫 번째 글", Description = "Hello World!", Author = "user1", CreatedAt = DateTime.Now },
-            new Post { Id = 2, Title = "Test Title", Description = "Test Description", Author = "testuser", CreatedAt= DateTime.Now },
-        };
-        private static int _nextId = 3;
+            _context = context; 
+        }
 
         // [GET] /api/posts - 모든 게시글 조회
         [HttpGet]
-        public ActionResult<IEnumerable<Post>> GetPosts()
+        public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
         {
-            return Ok(_posts);
+            return await _context.posts.ToListAsync();
         }
 
         // [GET] /api/posts/{id} - 특정 게시글 조회
         [HttpGet("{id}")]
-        public ActionResult<Post> GetPost(int id)
+        public async Task<ActionResult<Post>> GetPost(int id)
         {
-            var post = _posts.FirstOrDefault(p => p.Id == id);
+            var findPost = await _context.posts.FindAsync(id);
 
-            if (post == null)
+            if (findPost == null)
             {
                 return NotFound();
             }
-            return Ok(post);
+            return Ok(findPost);
         }
 
         // [POST] /api/posts - 새 게시글 작성
         [HttpPost]
-        public ActionResult<Post> CreatePost([FromBody] Post post)
+        public async Task<ActionResult<Post>> CreatePost([FromBody] Post post)
         {
-            post.Id = _nextId++;
             post.CreatedAt = DateTime.Now;
-            _posts.Add(post);
+            _context.posts.Add(post);
+            await _context.SaveChangesAsync();
+
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
-        // [PUT] /api/posts/{id} - 특정 게시글 수정
-        [HttpPut("{id}")]
-        public ActionResult<Post> UpdatePost(int id, [FromBody] Post updatePost)
-        {
-            var post = _posts.FirstOrDefault(p => p.Id == id);
+        //// [PUT] /api/posts/{id} - 특정 게시글 수정
+        //[HttpPut("{id}")]
+        //public ActionResult<Post> UpdatePost(int id, [FromBody] Post updatePost)
+        //{
+        //    var post = _posts.FirstOrDefault(p => p.Id == id);
 
-            if (post == null)
-            {
-                return NotFound();
-            }
+        //    if (post == null)
+        //    {
+        //        return NotFound();
+        //    }
 
-            if (!string.IsNullOrEmpty(updatePost.Title))
-            {
-                post.Title = updatePost.Title;
-            }
+        //    if (!string.IsNullOrEmpty(updatePost.Title))
+        //    {
+        //        post.Title = updatePost.Title;
+        //    }
 
-            if (!string.IsNullOrEmpty(updatePost.Description))
-            {
-                post.Description = updatePost.Description;
-            }
+        //    if (!string.IsNullOrEmpty(updatePost.Description))
+        //    {
+        //        post.Description = updatePost.Description;
+        //    }
 
-            if (!string.IsNullOrEmpty(updatePost.Author))
-            {
-                post.Author = updatePost.Author;
-            }
+        //    if (!string.IsNullOrEmpty(updatePost.Author))
+        //    {
+        //        post.Author = updatePost.Author;
+        //    }
 
-            return Ok(post);
-        }
+        //    return Ok(post);
+        //}
 
-        // [DELETE] /api/posts/{id} - 특정 게시글 삭제
-        [HttpDelete("{id}")]
-        public ActionResult DeletePost(int id)
-        {
-            var post = _posts.FirstOrDefault(p => p.Id==id);
+        //// [DELETE] /api/posts/{id} - 특정 게시글 삭제
+        //[HttpDelete("{id}")]
+        //public ActionResult DeletePost(int id)
+        //{
+        //    var post = _posts.FirstOrDefault(p => p.Id==id);
 
-            if (post == null)
-            {
-                return NotFound();
-            }
-            _posts.Remove(post);
+        //    if (post == null)
+        //    {
+        //        return NotFound();
+        //    }
+        //    _posts.Remove(post);
 
-            return NoContent();
-        }
+        //    return NoContent();
+        //}
     }
 }
