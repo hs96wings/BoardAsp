@@ -1,0 +1,31 @@
+﻿@page "/posts/{id:int}"
+@inject IHttpClientFactory HttpClientFactory
+
+<h3>게시글 상세</h3>
+
+@if (post == null)
+{
+    <p><em>로딩 중...</em></p>
+}
+else
+{
+    <div>
+        <h4>@post.Title</h4>
+        <p>@post.Description</p>
+        <p><strong>작성자:</strong> @post.Author</p>
+        <p><strong>작성일:</strong> @post.CreatedAt.ToString("yyyy-MM-dd HH:mm")</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Post? post;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var client = HttpClientFactory.CreateClient("WebApi");
+        post = await client.GetFromJsonAsync<Post>($"api/posts/{id}");
+    }
+}

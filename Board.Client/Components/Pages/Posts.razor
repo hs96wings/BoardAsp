@@ -23,7 +23,7 @@ else
             {
                 <tr>
                     <td>@post.Id</td>
-                    <td>@post.Title</td>
+                    <td><a href="/posts/@post.Id">@post.Title</a></td>
                     <td>@post.Author</td>
                     <td>@post.CreatedAt.ToShortDateString()</td>
                 </tr>
