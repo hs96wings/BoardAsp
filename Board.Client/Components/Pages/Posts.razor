@@ -1,7 +1,12 @@
 ﻿@page "/board"
 @inject IHttpClientFactory HttpClientFactory // Program.cs에 등록한 HttpClient를 사용하기 위해 주입
+@inject NavigationManager Navigation
 
 <h3>게시판</h3>
+
+<NavLink class="btn btn-primary" href="/posts/create">
+    글 작성
+</NavLink>
 
 @if (posts == null)
 {

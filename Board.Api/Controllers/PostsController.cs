@@ -37,12 +37,12 @@ namespace Board.Api.Controllers
 
         // [POST] /api/posts - 새 게시글 작성
         [HttpPost]
-        public ActionResult<Post> CreatePost(Post post)
+        public ActionResult<Post> CreatePost([FromBody] Post post)
         {
             post.Id = _nextId++;
             post.CreatedAt = DateTime.Now;
             _posts.Add(post);
-            return CreatedAtAction(nameof(Post), new { id = post.Id }, _posts);
+            return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
     }
 }

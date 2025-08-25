@@ -1,0 +1,54 @@
+﻿@page "/posts/create"
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<h3>새 글 작성</h3>
+
+<EditForm Model="@post" OnValidSubmit="@HandleValidSubmit" FormName="CreatePostForm">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label for="title" class="form-label">제목</label>
+        <InputText id="title" class="form-control" @bind-Value="post.Title" />
+        <ValidationMessage For="@(() => post.Title)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">내용</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="post.Description" rows="5" />
+        <ValidationMessage For="@(() => post.Description)" />
+    </div>
+
+    <div class="mb-3">
+        <label for="author" class="form-label">작성자</label>
+        <InputText id="author" class="form-control" @bind-Value="post.Author" />
+        <ValidationMessage For="@(() => post.Author)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">저장하기</button>
+    <ValidationSummary class="mt-2 text-danger" />
+</EditForm>
+
+
+@code {
+    private Post post = new Post();
+
+    private async Task HandleValidSubmit()
+    {
+        var client = HttpClientFactory.CreateClient("WebApi");
+
+        var response = await client.PostAsJsonAsync("api/posts", post);
+        Console.WriteLine(post.Title.ToString());
+
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/board"); // 작성 후 목록으로 이동
+        }
+        else
+        {
+            // TODO: 에러 처리
+            Console.WriteLine("Error creating post");
+        }
+    }
+}
