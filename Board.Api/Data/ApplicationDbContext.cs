@@ -7,6 +7,6 @@ namespace Board.Api.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-        public DbSet<Post> posts { get; set; }
+        public DbSet<Post> Posts { get; set; }
     }
 }

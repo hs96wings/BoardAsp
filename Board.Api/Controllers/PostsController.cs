@@ -20,14 +20,14 @@ namespace Board.Api.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Post>>> GetPosts()
         {
-            return await _context.posts.ToListAsync();
+            return await _context.Posts.ToListAsync();
         }
 
         // [GET] /api/posts/{id} - 특정 게시글 조회
         [HttpGet("{id}")]
         public async Task<ActionResult<Post>> GetPost(int id)
         {
-            var findPost = await _context.posts.FindAsync(id);
+            var findPost = await _context.Posts.FindAsync(id);
 
             if (findPost == null)
             {
@@ -41,40 +41,41 @@ namespace Board.Api.Controllers
         public async Task<ActionResult<Post>> CreatePost([FromBody] Post post)
         {
             post.CreatedAt = DateTime.Now;
-            _context.posts.Add(post);
+            _context.Posts.Add(post);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
         }
 
-        //// [PUT] /api/posts/{id} - 특정 게시글 수정
-        //[HttpPut("{id}")]
-        //public ActionResult<Post> UpdatePost(int id, [FromBody] Post updatePost)
-        //{
-        //    var post = _posts.FirstOrDefault(p => p.Id == id);
+        // [PUT] /api/posts/{id} - 특정 게시글 수정
+        [HttpPut("{id}")]
+        public async Task<ActionResult<Post>> UpdatePost(int id, [FromBody] Post updatePost)
+        {
+            var post = await _context.Posts.FindAsync(id);
 
-        //    if (post == null)
-        //    {
-        //        return NotFound();
-        //    }
+            if (post == null)
+            {
+                return NotFound();
+            }
 
-        //    if (!string.IsNullOrEmpty(updatePost.Title))
-        //    {
-        //        post.Title = updatePost.Title;
-        //    }
+            if (!string.IsNullOrEmpty(updatePost.Title))
+            {
+                post.Title = updatePost.Title;
+            }
 
-        //    if (!string.IsNullOrEmpty(updatePost.Description))
-        //    {
-        //        post.Description = updatePost.Description;
-        //    }
+            if (!string.IsNullOrEmpty(updatePost.Description))
+            {
+                post.Description = updatePost.Description;
+            }
 
-        //    if (!string.IsNullOrEmpty(updatePost.Author))
-        //    {
-        //        post.Author = updatePost.Author;
-        //    }
+            if (!string.IsNullOrEmpty(updatePost.Author))
+            {
+                post.Author = updatePost.Author;
+            }
+            await _context.SaveChangesAsync();
 
-        //    return Ok(post);
-        //}
+            return Ok(post);
+        }
 
         //// [DELETE] /api/posts/{id} - 특정 게시글 삭제
         //[HttpDelete("{id}")]
