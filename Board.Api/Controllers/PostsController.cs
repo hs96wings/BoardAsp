@@ -51,30 +51,31 @@ namespace Board.Api.Controllers
         [HttpPut("{id}")]
         public async Task<ActionResult<Post>> UpdatePost(int id, [FromBody] Post updatePost)
         {
-            var post = await _context.Posts.FindAsync(id);
-
-            if (post == null)
+            // ID가 일치하지 않으면 잘못된 요청으로 처리
+            if (id != updatePost.Id)
             {
-                return NotFound();
+                return BadRequest();
             }
 
-            if (!string.IsNullOrEmpty(updatePost.Title))
+            // EF Core가 post 객체를 추적하도록 상태를 변경
+            _context.Entry(updatePost).State = EntityState.Modified;
+
+            try
             {
-                post.Title = updatePost.Title;
+                await _context.SaveChangesAsync();
+            } catch (DbUpdateConcurrencyException)
+            {
+                // 업데이트 하려는 사이 다른 사용자가 삭제했을 경우 등 예외 처리
+                if (!_context.Posts.Any(e => e.Id == id))
+                {
+                    return NotFound();
+                } else
+                {
+                    throw;
+                }
             }
 
-            if (!string.IsNullOrEmpty(updatePost.Description))
-            {
-                post.Description = updatePost.Description;
-            }
-
-            if (!string.IsNullOrEmpty(updatePost.Author))
-            {
-                post.Author = updatePost.Author;
-            }
-            await _context.SaveChangesAsync();
-
-            return Ok(post);
+            return NoContent();
         }
 
         //// [DELETE] /api/posts/{id} - 특정 게시글 삭제
